@@ -9,18 +9,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+
 import com.example.fundamentos2.ui.theme.Fundamentos2Theme
 
 class MainActivity : ComponentActivity() {
@@ -62,14 +63,20 @@ fun HelloContent(name: String, onNameChange: (String) -> Unit) {
 }
 
 @Composable
-fun HelloScreen() {
-    var name: String by rememberSaveable { mutableStateOf("") }
-    HelloContent(name = name, onNameChange = { name = it })
+fun HelloScreen(helloViewModel: HelloViewModel = HelloViewModel()) {
+    //var name: String by rememberSaveable { mutableStateOf("") }
+    val name: String by helloViewModel.name.observeAsState("");
+    //HelloContent(name = name, onNameChange = { name = it })
+    HelloContent(name = name, onNameChange = {helloViewModel.onNameChange(it)})
 }
 
 class HelloViewModel: ViewModel(){
     private val _name: MutableLiveData<String> = MutableLiveData("")
-    val name: LiveData<String> get() = _name
+    val name: LiveData<String> = _name
+
+    fun onNameChange(newName: String){
+        _name.value = newName
+    }
 }
 
 @Preview(showBackground = true)
